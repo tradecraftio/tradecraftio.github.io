@@ -22,6 +22,10 @@ jobs:
           name: Resolve/update dependencies
           command: |
             npm install
+      - run:
+          name: Install GatsbyJS
+          command: |
+            yarn add gatsby-cli
       - save_cache:
           name: Cache dependencies
           key: gatsby-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
@@ -30,7 +34,7 @@ jobs:
       - run:
           name: Generate static site
           command: |
-            gatsby build
+            yarn run gatsby build
       - run:
           name: Publish to Github Pages
           working_directory: './public'
