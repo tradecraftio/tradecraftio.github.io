@@ -47,6 +47,8 @@ jobs:
             cp ../.circleci/CNAME CNAME
             # add exclusion rules
             cp ../.circleci/gitignore .gitignore
+            # add README.md (for Github display)
+            cp ../README.md .
             # add generated files
             git add --all
             git commit -m "publish $CIRCLE_SHA1 [ci skip]"
