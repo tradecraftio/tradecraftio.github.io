@@ -1,0 +1,51 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: gatsbyjs/gatsby:latest
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "3e:f3:e4:0c:4b:e0:8c:30:7d:cb:82:e7:84:59:eb:61"
+      - checkout
+      - restore_cache:
+          name: Restore cached dependencies
+          keys:
+            # prefer a chache for the same package.json and package-lock.json
+            - gatsby-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+            # or reuse from the same package.json
+            - gatsby-{{ .Branch }}-{{ checksum "package.json" }}
+            # or reuse from the same branch
+            - gatsby-{{ .Branch }}
+      - run:
+          name: Resolve/update dependencies
+          command: |
+            npm install
+      - save_cache:
+          name: Cache dependencies
+          key: gatsby-{{ .Branch }}-{{ checksum "package.json" }}-{{ checksum "package-lock.json" }}
+          paths:
+            ./node_modules
+      - run:
+          name: Generate static site
+          command: |
+            gatsby build
+      - run:
+          name: Publish to Github Pages
+          working_directory: './public'
+          command: |
+            # initialize repo
+            git init
+            git config user.name "CircleCI"
+            git config user.email "job@circleci.com"
+            # add CNAME rule
+            cp ../.circleci/CNAME CNAME
+            # add exclusion rules
+            cp ../.circleci/gitignore .gitignore
+            # add generated files
+            git add --all
+            git commit -m "publish $CIRCLE_SHA1 [ci skip]"
+            # push to pages branch
+            git remote add origin "$CIRCLE_REPOSITORY_URL"
+            git push --force origin master
