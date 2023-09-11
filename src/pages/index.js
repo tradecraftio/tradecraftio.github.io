@@ -42,7 +42,6 @@ const samplePageLinks = [
       "A simple example of linking to another page within a Gatsby site",
   },
   { text: "TypeScript", url: "using-typescript" },
-  { text: "Deferred Static Generation", url: "using-dsg" },
 ]
 
 const moreLinks = [
